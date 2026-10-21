@@ -19,7 +19,7 @@ import com.dpad.messaging.models.*
         BlockedKeyword::class,
         BlockedNumber::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 abstract class MessagesDatabase : RoomDatabase() {
@@ -101,6 +101,12 @@ abstract class MessagesDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE messages ADD COLUMN is_encrypted INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         @Volatile
         private var instance: MessagesDatabase? = null
 
@@ -121,6 +127,7 @@ abstract class MessagesDatabase : RoomDatabase() {
                 .addMigrations(MIGRATION_3_4)
                 .addMigrations(MIGRATION_4_5)
                 .addMigrations(MIGRATION_5_6)
+                .addMigrations(MIGRATION_6_7)
                 .build()
         }
     }
